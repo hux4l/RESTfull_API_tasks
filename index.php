@@ -24,23 +24,38 @@ $header_callback = function($ch, $header) use (&$response_headers) {
     return $len;
 };
 
+// array to be send to firebase db
+$payload = [
+    "content" => "no nazdar",
+    "title" => "Nazdar!"
+];
+
+// headers to be send
 $headers = [
-    "Authorization: Client-ID fds56f4sdgdfg4dfg4dfg"
+    'Content-Type: text/plain'
+    //"Authorization: Client-ID fds56f4sdgdfg4dfg4dfg"
+    // here we can add custom header if needed for api
 ];
 // curl_setopt($ch, CURLOPT_URL, "https://randomuser.me/api");
 // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 curl_setopt_array($ch, [
     // api access url
-    CURLOPT_URL => "https://randomuser.me/api",
+    //CURLOPT_URL => "https://ng-necropol-default-rtdb.europe-west1.firebasedatabase.app/posts.json",
+    // get single entry
+    CURLOPT_URL => "https://ng-necropol-default-rtdb.europe-west1.firebasedatabase.app/posts.json",
     // return response data
     CURLOPT_RETURNTRANSFER => true,
     // include our headers
     CURLOPT_HTTPHEADER => $headers,
     // get response headers
-    //CURLOPT_HEADER => true
+    //CURLOPT_HEADER => true,
     // header function to get headers
-    CURLOPT_HEADERFUNCTION => $header_callback
+    //  CURLOPT_HEADERFUNCTION => $header_callback,
+    // change curl method (default is GET)
+    //CURLOPT_CUSTOMREQUEST => 'POST',
+    // attach data to be send, encode as json
+    //CURLOPT_POSTFIELDS => json_encode($payload)
 ]);
 
 // store response to variable
@@ -52,12 +67,18 @@ $content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 // get api response code
 $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
+// close curl connection
 curl_close($ch);
 
 echo $status_code , "\n";
 echo $content_type, "\n";
 
-print_r($response_headers);
+//print_r($response_headers);
+// convert response to array
+$data = json_decode($response, true);
 
-echo $response , "\n";
+// print data
+foreach ($data as $gist) {
+    echo $gist["title"], " - ", $gist["content"] , "\n";
+}
 ?>
