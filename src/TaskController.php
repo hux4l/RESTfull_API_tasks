@@ -2,6 +2,10 @@
 
 class TaskController
 {
+    public function __construct(private TaskGateway $gateway)
+    {
+        
+    }
 
     // ?string: $id checks $id only if exists
     public function processRequest(string $method, ?string $id) : void
@@ -9,19 +13,37 @@ class TaskController
         if ($id === null) {
 
             if ($method == 'GET') {
-                echo "index";
-            } else if ($method == 'POST') {
-                echo "create";
+                // call getAll method
+                echo json_encode($this->gateway->getAll());
+
+            } elseif ($method == 'POST') {
+                
+                // decode data as json
+                $data = json_decode(file_get_contents("php://input"), true);
+
+                var_dump($data);
+
             } else {
                 // return method not allowed
                 $this->respondMethodNotAllowed("GET, POST");
             }
         } else {
 
+            // get tasks with id
+            $task = $this->gateway->get($id);
+
+            // check if task exists
+            if ($task === false) {
+
+                // if not found return 404
+                $this->respondNotFound($id);
+                return;
+            }
+
             switch ($method) {
 
                 case "GET":
-                    echo "show $id";
+                    echo json_encode($task);
                     break;
 
                 case "PATCH":
@@ -44,5 +66,11 @@ class TaskController
     {
         http_response_code(405);
         header("Allow: $allowed_methods");
+    }
+
+    private function respondNotFound(string $id): void
+    {
+        http_response_code(404);
+        echo json_encode(["message" => "Task with ID $id not found"]);
     }
 }
