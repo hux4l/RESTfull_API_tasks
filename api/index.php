@@ -5,14 +5,16 @@ declare(strict_types=1);
 // enable displaying errors
 //ini_set("display_errors", "On");
 
-require dirname(__DIR__) . "\src\TaskController.php";
-require dirname(__DIR__) . "\src\ErrorHandler.php";
-require dirname(__DIR__) . "\src\Database.php";
+require dirname(__DIR__) . "/vendor/autoload.php";
 
 // htaccsess redirects all to this index.php from address /api
 
 /// exception handler enable
 set_exception_handler("ErrorHandler::handleException");
+
+//load database access 
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
 
 // parse url behind address
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -37,7 +39,7 @@ if ($resource != "tasks") {
 
 header("Content-type: application/json; charset=UTF-8");
 
-$database = new Database("localhost", "api_db", "hux4l", "Moncici1234.");
+$database = new Database($_ENV["DB_HOST"], $_ENV["DB_NAME"], $_ENV["DB_USER"], $_ENV["DB_PASS"]);
 
 $database->getConnection();
 
