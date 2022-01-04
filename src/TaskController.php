@@ -1,5 +1,7 @@
 <?php
 
+use function PHPSTORM_META\type;
+
 class TaskController
 {
     public function __construct(private TaskGateway $gateway)
@@ -20,6 +22,16 @@ class TaskController
                 
                 // decode data as json
                 $data = (array) json_decode(file_get_contents("php://input"), true);
+
+                // validate data
+                $errors = $this->getValidationErrors($data);
+
+                if (!empty($errors)) {
+
+                    $this->respondUnprocessableEntity($errors);
+                    return;
+
+                }
 
                 // call create function
                 $id = $this->gateway->create($data);
@@ -51,6 +63,19 @@ class TaskController
                     break;
 
                 case "PATCH":
+
+                    $data = (array) json_decode(file_get_contents("php://input"), true);
+
+                    // validate data, we pass false so the task is not new so name will not be required
+                    $errors = $this->getValidationErrors($data, false);
+
+                    if (!empty($errors)) {
+
+                        $this->respondUnprocessableEntity($errors);
+                        return;
+                    
+                    }
+
                     echo "update $id";
                     break;
 
@@ -65,6 +90,13 @@ class TaskController
         }
     }
 
+    // if data is not valid
+    private function respondUnprocessableEntity(array $errors): void
+    {
+        http_response_code(404);
+        echo json_encode(["errors" => $errors]);
+    }
+
     // function that return allowed methods on url
     private function respondMethodNotAllowed(string $allowed_methods): void
     {
@@ -72,15 +104,35 @@ class TaskController
         header("Allow: $allowed_methods");
     }
 
+    // return error message when task with $id was not found
     private function respondNotFound(string $id): void
     {
         http_response_code(404);
         echo json_encode(["message" => "Task with ID $id not found"]);
     }
 
+    // return response that task was created
     private function respondCreated(string $id): void
     {
         http_response_code(201);
         echo json_encode(["message" => "Task created", "id" => $id]);
+    }
+
+    // validate data
+    private function getValidationErrors(array $data, bool $is_new = true): array
+    {
+        $errors = [];
+
+        // check if name is given
+        if ($is_new && empty($data["name"])) {
+            $errors[] = "name is required";
+        }
+
+        // check if priority is not empty and is valid integer
+        if (!empty($data["priority"]) && filter_var($data["priority"], FILTER_VALIDATE_INT) === false) {
+                $errors [] = "priority must be an integer";
+        }
+
+        return $errors;
     }
 }
