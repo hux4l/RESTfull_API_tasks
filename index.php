@@ -36,6 +36,7 @@ $headers = [
     //"Authorization: Client-ID fds56f4sdgdfg4dfg4dfg"
     // here we can add custom header if needed for api
 ];
+
 // curl_setopt($ch, CURLOPT_URL, "https://randomuser.me/api");
 // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
