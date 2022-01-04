@@ -74,6 +74,7 @@ class TaskGateway
 
         // bind parameters
         $stmt->bindValue(":name", $data["name"], PDO::PARAM_STR);
+        
         if (empty($data['priority'])) {
 
             $stmt->bindValue(":priority", null, PDO::PARAM_NULL);

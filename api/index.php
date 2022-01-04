@@ -9,6 +9,9 @@ require dirname(__DIR__) . "/vendor/autoload.php";
 
 // htaccsess redirects all to this index.php from address /api
 
+// error handler function
+set_error_handler("ErrorHandler::handleError");
+
 /// exception handler enable
 set_exception_handler("ErrorHandler::handleException");
 

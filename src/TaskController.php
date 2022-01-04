@@ -19,7 +19,7 @@ class TaskController
             } elseif ($method == 'POST') {
                 
                 // decode data as json
-                $data = json_decode(file_get_contents("php://input"), true);
+                $data = (array) json_decode(file_get_contents("php://input"), true);
 
                 // call create function
                 $id = $this->gateway->create($data);
