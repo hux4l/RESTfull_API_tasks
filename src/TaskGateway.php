@@ -74,7 +74,7 @@ class TaskGateway
 
         // bind parameters
         $stmt->bindValue(":name", $data["name"], PDO::PARAM_STR);
-        
+
         if (empty($data['priority'])) {
 
             $stmt->bindValue(":priority", null, PDO::PARAM_NULL);
@@ -90,5 +90,63 @@ class TaskGateway
         $stmt->execute();
 
         return $this->conn->lastInsertId();
+    }
+
+    public function update(string $id, array $data): int
+    {
+        $fields = [];
+
+        // check values if we need to include them in sql
+        if (!empty($data["name"])) {
+            $fields["name"] = [
+                $data["name"],
+                PDO::PARAM_STR
+            ];
+        }
+
+        // need to check for key name, null or false is as empty value
+        if (array_key_exists("priority", $data)) {
+            $fields["priority"] = [
+                $data["priority"],
+                $data["priority"] === null ? PDO::PARAM_NULL : PDO::PARAM_INT
+            ];
+        }
+
+        if (array_key_exists("is_completed", $data)) {
+            $fields["is_completed"] = [
+                $data["is_completed"],
+                PDO::PARAM_BOOL
+            ];
+        }
+
+        // if no fields, do nothing
+        if (empty($fields)) {
+            return 0;
+        } else {
+            // create key array from array of keys
+        $sets = array_map(function($value) {
+            return "$value = :$value";
+        }, array_keys($fields));
+
+        // create sql
+        $sql = "UPDATE task"
+                . " SET " . implode(", ", $sets)
+                . " WHERE id = :id";
+        
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt-> bindValue(":id", $id, PDO::PARAM_INT);
+
+        // bind param for each fields in array
+        foreach ($fields as $name => $values) {
+
+            $stmt->bindValue(":$name", $values[0], $values[1]);
+
+        }
+
+        $stmt->execute();
+
+        return $stmt->rowCount();
+        }        
     }
 }
