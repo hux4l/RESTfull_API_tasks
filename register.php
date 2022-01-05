@@ -4,7 +4,7 @@ use Dotenv\Dotenv;
 
 require __DIR__ . "/vendor/autoload.php";
 
-// api_key 5d0b6dc307fb3687a601e2a833ba7d1b
+// api_key d10ce2ff3e8e2b59537b0d80a2886a65
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
@@ -36,6 +36,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->bindValue(":username", $_POST["username"], PDO::PARAM_STR);
     $stmt->bindValue(":password_hash", $password_hash, PDO::PARAM_STR);
     $stmt->bindValue(":api_key", $api_key, PDO::PARAM_STR);
+
+    $stmt->execute();
 
     echo "Thank you for registering. Your API key is ", $api_key;
     exit;
