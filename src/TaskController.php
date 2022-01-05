@@ -4,9 +4,9 @@ use function PHPSTORM_META\type;
 
 class TaskController
 {
-    public function __construct(private TaskGateway $gateway)
-    {
-        
+    public function __construct(private TaskGateway $gateway,
+                                                private int $user_id)
+    { 
     }
 
     // ?string: $id checks $id only if exists
@@ -16,7 +16,7 @@ class TaskController
 
             if ($method == 'GET') {
                 // call getAll method
-                echo json_encode($this->gateway->getAll());
+                echo json_encode($this->gateway->getAllForUser($this->user_id));
 
             } elseif ($method == 'POST') {
                 

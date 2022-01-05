@@ -38,10 +38,14 @@ if (! $auth->authenticateAPIKey()) {
     exit;
 }
 
+// get user id and store it
+$user_id = $auth->getUserID();
+
+
 // object of task gateway
 $task_gateway = new TaskGateway($database);
 
 // create controller
-$controller = new TaskController($task_gateway);
+$controller = new TaskController($task_gateway, $user_id);
 
 $controller->processRequest($_SERVER['REQUEST_METHOD'], $id);

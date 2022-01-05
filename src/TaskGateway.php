@@ -12,16 +12,21 @@ class TaskGateway
     }
 
     // get all records from MySQL
-    public function getAll(): array
+    public function getAllForUser(int $user_id): array
     {
         // sql statement
         $sql = "
             SELECT *
             FROM task
+            WHERE user_id = :user_id
             ORDER BY name";
 
         // execute statement on PDO object
-        $stmt = $this->conn->query($sql);
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bindValue(":user_id", $user_id, PDO::PARAM_INT);
+
+        $stmt->execute();
 
         // create empty array
         $data = [];
