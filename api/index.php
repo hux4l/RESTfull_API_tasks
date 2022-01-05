@@ -2,22 +2,9 @@
 
 // enable strict mode
 declare(strict_types=1);
+require __DIR__ . "/bootstrap.php";
 // enable displaying errors
 //ini_set("display_errors", "On");
-
-require dirname(__DIR__) . "/vendor/autoload.php";
-
-// htaccsess redirects all to this index.php from address /api
-
-// error handler function
-set_error_handler("ErrorHandler::handleError");
-
-/// exception handler enable
-set_exception_handler("ErrorHandler::handleException");
-
-//load database access 
-$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
-$dotenv->load();
 
 // parse url behind address
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -40,32 +27,16 @@ if ($resource != "tasks") {
     exit;
 }
 
-// check if api-key is sended
-if (empty($_SERVER["HTTP_X_API_KEY"])) {
-
-    http_response_code(400);
-    echo json_encode(["message" => "missing API key"]);
-    exit;
-}
-
-// get api-key from server header
-$api_key = $_SERVER["HTTP_X_API_KEY"];
 
 $database = new Database($_ENV["DB_HOST"], $_ENV["DB_NAME"], $_ENV["DB_USER"], $_ENV["DB_PASS"]);
 
 $user_gateway = new UserGateway($database);
 
-if ($user_gateway->getByAPIKey($api_key) === false) {
+$auth = new Auth($user_gateway);
 
-    http_response_code(401);
-    echo json_encode(["message" => "invalid API key"]);
+if (! $auth->authenticateAPIKey()) {
     exit;
-
 }
-
-header("Content-type: application/json; charset=UTF-8");
-
-
 
 // object of task gateway
 $task_gateway = new TaskGateway($database);
