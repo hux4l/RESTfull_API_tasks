@@ -40,11 +40,32 @@ if ($resource != "tasks") {
     exit;
 }
 
-header("Content-type: application/json; charset=UTF-8");
+// check if api-key is sended
+if (empty($_SERVER["HTTP_X_API_KEY"])) {
+
+    http_response_code(400);
+    echo json_encode(["message" => "missing API key"]);
+    exit;
+}
+
+// get api-key from server header
+$api_key = $_SERVER["HTTP_X_API_KEY"];
 
 $database = new Database($_ENV["DB_HOST"], $_ENV["DB_NAME"], $_ENV["DB_USER"], $_ENV["DB_PASS"]);
 
-$database->getConnection();
+$user_gateway = new UserGateway($database);
+
+if ($user_gateway->getByAPIKey($api_key) === false) {
+
+    http_response_code(401);
+    echo json_encode(["message" => "invalid API key"]);
+    exit;
+
+}
+
+header("Content-type: application/json; charset=UTF-8");
+
+
 
 // object of task gateway
 $task_gateway = new TaskGateway($database);
