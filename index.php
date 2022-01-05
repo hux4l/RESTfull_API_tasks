@@ -37,9 +37,6 @@ $headers = [
     // here we can add custom header if needed for api
 ];
 
-// curl_setopt($ch, CURLOPT_URL, "https://randomuser.me/api");
-// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
 curl_setopt_array($ch, [
     // api access url
     //CURLOPT_URL => "https://ng-necropol-default-rtdb.europe-west1.firebasedatabase.app/posts.json",
