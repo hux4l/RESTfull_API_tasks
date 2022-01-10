@@ -50,9 +50,11 @@ if ( ! password_verify($data["password"], $user["password_hash"])) {
 
 // return access token
 // in JWT need to be exactly needed names
+// exp adding expire time to token, with 300 seconds
 $payload = [
     "sub" => $user["id"],
-    "name" => $user["name"]
+    "name" => $user["name"],
+    "exp" => time() + 300
 ];
 
 $codec = new JWTCodec($_ENV["SECRET_KEY"]);
