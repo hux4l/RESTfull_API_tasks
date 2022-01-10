@@ -2,7 +2,8 @@
 class Auth
 {
     private int $user_id;
-    public function __construct(private UserGateway $user_gateway)
+    public function __construct(private UserGateway $user_gateway,
+                                                private JWTCodec $codec)
     {
     }
 
@@ -51,29 +52,18 @@ class Auth
             return false;
         }
 
-        // decode text
-        $plain_text = base64_decode($matches[1], true);
-
-        // if access token not match return false
-        if ($plain_text === false) {
-
-            http_response_code(400);
-            echo json_encode(["message" => "invalid authorization header"]);
-            return false;
-        }
-
-        // if json is invalid will return null
-        $data = json_decode($plain_text, true);
-
-        if ($data === null) {
+        // catch errors from calling this method
+        try {
+            $data = $this->codec->decode($matches[1]);
+        } catch (Exception $e) {
 
             http_response_code(400);
-            echo json_encode(["message" => "invalid JSON"]);
+            echo json_encode((["message" => $e->getMessage()]));
             return false;
         }
 
         // get user id
-        $this->user_id = $data["id"];
+        $this->user_id = $data["sub"];
 
         // if everything is ok return true
         return true;
