@@ -45,7 +45,8 @@ class RefreshTokenGateway
     {
         $hash = hash_hmac("sha256", $token, $this->key);
 
-        $sql = "SELECT * FROM refresh_token
+        $sql = "SELECT * 
+                    FROM refresh_token
                     WHERE token_hash = :token_hash";
         
         $stmt = $this->conn->prepare($sql);
@@ -54,5 +55,14 @@ class RefreshTokenGateway
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function deleteExpired(): int
+    {
+        $sql = "DELETE FROM refresh_token WHERE expires_at < UNIX_TIMESTAMP()";
+
+        $stmt = $this->conn->query($sql);
+
+        return $stmt->rowCount();
     }
 }

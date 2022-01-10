@@ -36,9 +36,6 @@ try {
     exit;
 }
 
-// get user id from token
-$user_id = $payload["sub"];
-
 $database = new Database($_ENV["DB_HOST"],
                                             $_ENV["DB_NAME"],
                                             $_ENV["DB_USER"],
@@ -46,30 +43,4 @@ $database = new Database($_ENV["DB_HOST"],
 
 $refresh_token_gateway = new RefreshTokenGateway($database, $_ENV["SECRET_KEY"]);
 
-$refresh_token = $refresh_token_gateway->getByToken($data["token"]);
-
-if ($refresh_token === false) {
-
-    http_response_code(400);
-    echo json_encode(["message" => "invalid token (not on whitelist)"]);
-    exit;
-
-}
-
-$user_gateway = new UserGateway($database);
-
-$user = $user_gateway->getByID($user_id);
-
-if ($user === false) {
-
-    http_response_code(401);
-    echo json_encode(["message" => "invalid authentication"]);
-    exit;
-
-}
-
-require __DIR__ . "/tokens.php";
-
 $refresh_token_gateway->delete($data["token"]);
-
-$refresh_token_gateway->create($refresh_token, $refresh_token_expiry);
