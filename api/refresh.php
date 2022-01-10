@@ -57,3 +57,9 @@ if ($user === false) {
 }
 
 require __DIR__ . "/tokens.php";
+
+$refresh_token_gateway = new RefreshTokenGateway($database, $_ENV["SECRET_KEY"]);
+
+$refresh_token_gateway->delete($data["token"]);
+
+$refresh_token_gateway->create($refresh_token, $refresh_token_expiry);
