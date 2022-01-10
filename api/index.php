@@ -34,9 +34,11 @@ $user_gateway = new UserGateway($database);
 
 $auth = new Auth($user_gateway);
 
-if (! $auth->authenticateAPIKey()) {
+if (! $auth->authenticateAccessToken()) {
     exit;
 }
+
+
 
 // get user id and store it
 $user_id = $auth->getUserID();

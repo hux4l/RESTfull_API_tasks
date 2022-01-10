@@ -40,4 +40,42 @@ class Auth
     {
         return $this->user_id;
     }
+
+    // authenticate access token
+    public function authenticateAccessToken(): bool
+    {
+        if (! preg_match("/^Bearer\s+(.*)$/", $_SERVER["HTTP_AUTHORIZATION"], $matches))
+        {
+            http_response_code(400);
+            echo json_encode(["message" => "incomplete authorization header"]);
+            return false;
+        }
+
+        // decode text
+        $plain_text = base64_decode($matches[1], true);
+
+        // if access token not match return false
+        if ($plain_text === false) {
+
+            http_response_code(400);
+            echo json_encode(["message" => "invalid authorization header"]);
+            return false;
+        }
+
+        // if json is invalid will return null
+        $data = json_decode($plain_text, true);
+
+        if ($data === null) {
+
+            http_response_code(400);
+            echo json_encode(["message" => "invalid JSON"]);
+            return false;
+        }
+
+        // get user id
+        $this->user_id = $data["id"];
+
+        // if everything is ok return true
+        return true;
+    }
 }
