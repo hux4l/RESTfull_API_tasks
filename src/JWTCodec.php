@@ -52,7 +52,7 @@ class JWTCodec
 
         // if tokens do not match
         if (!hash_equals($signature, $signature_from_token)) {
-            throw new Exception("Signature doesn't match");
+            throw new InvalidSignatureException("Signature doesn't match");
         }
 
         // if oka decode token
